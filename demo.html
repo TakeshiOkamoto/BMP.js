@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="BMP.js"></script>
+<script>
+var src_img,dst_canvas,dst_ctx;
+
+window.onload = function () {  
+  src_img = document.getElementById("SrcImage");
+  dst_canvas = document.getElementById("DstCanvas");
+  dst_ctx = dst_canvas.getContext("2d");        
+}
+
+function save(){  
+      
+  // Generate ImageData 
+  // (ImageDataの生成)    
+  var imagedata = dst_ctx.getImageData(0,0,dst_canvas.width,dst_canvas.height); 
+ 
+  // Output in BMP format 
+  // (BMP形式で出力する)
+  var BMPWriter = new TBMPWriter(imagedata);
+  BMPWriter.SaveToFile('untitle.bmp');
+}  
+
+function OpenFile(event) {  
+  var files;
+  var reader = new FileReader();
+  
+  if(event.target.files){
+    files = event.target.files;
+  }else{ 
+    files = event.dataTransfer.files;   
+  }    
+
+  reader.onload = function (event) {
+    
+    src_img.onload = function (){  
+      dst_canvas.width  = src_img.width;
+      dst_canvas.height = src_img.height;        
+      dst_ctx.drawImage(src_img,0,0); 
+    };      
+       
+    src_img.onerror  = function (){
+      alert('This file can not be read.');  
+      run_flg = false;      
+    };
+
+    src_img.src = reader.result;       
+  };
+  
+  if (files[0]){    
+    reader.readAsDataURL(files[0]); 
+    document.getElementById("inputfile").value = '';
+  }
+}       
+</script>
+</head>
+<body>
+<input type="file" id="inputfile" accept="image/jpeg,image/png,image/gif,image/bmp,image/x-icon" onchange="OpenFile(event);">
+<button onclick="save();" style="font-size:24px;">Save</button> 
+<p>[Original image]</p>
+<img id="SrcImage" style="display:none;">
+<canvas id="DstCanvas"></canvas>
+</body>
+</html>
